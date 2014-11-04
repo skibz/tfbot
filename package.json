@@ -1,6 +1,6 @@
 {
   "name": "tfbot",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "private": true,
   "author": "Ant Cosentino <antony@mycosentino.com>",
   "description": "An IRC bot for the South African TF2 community.",
