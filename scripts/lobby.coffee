@@ -29,6 +29,7 @@ module.exports = (robot) ->
   ]
 
   mistake = [
+    'awkwaaard, but'
     'silly-billy'
     'my, oh my, you are a funny one'
     'oops'
@@ -148,10 +149,10 @@ module.exports = (robot) ->
         msg.send "be a darling and click the link: steam://connect/#{server.host}:#{server.port}/#{server.password}"
         msg.send "no guarantee can be made that your place will still be available if you're late."
         return msg.send "also, if you're late often, a suitable punishment will be awarded."
-      else
-        lobby.finalising = false
-        robot.brain.set 'lobby', lobby
-        return msg.send "darn, it looks like we didn't find enough players in time. but never fear! tfbot is here to comfort you while you cry yourself to sleep."
+
+      lobby.finalising = false
+      robot.brain.set 'lobby', lobby
+      return msg.send "darn, it looks like we didn't find enough players in time. but never fear! tfbot is here to comfort you while you cry yourself to sleep."
 
   robot.leave (msg) ->
     lobby = robot.brain.get 'lobby'
@@ -160,7 +161,7 @@ module.exports = (robot) ->
     user = msg.message.user.id
     players = Object.keys(lobby.participants)
 
-    if lobby? and user in players
+    if user in players
       delete lobby.participants[user]
       robot.brain.set 'lobby', lobby
       return msg.send "|| #{lobby.server} | #{lobby.map} | #{players.length}/12 | [ #{players.join(', ')} ] ||"
@@ -168,27 +169,28 @@ module.exports = (robot) ->
   robot.respond /rcon (say|message|msg) (.*) on (.*)/i, (msg) ->
     server = servers[msg.match[3].toLowerCase()]
 
-    return unless server?.rcon
-
-    new Rcon(server, (ctx) ->
-      ctx.exec("sm_say #{msg.match[2]}", (res) ->
-        ctx.close()
-        return msg.reply "#{msg.random(affirmative)} your message was delivered..."
+    if server?.rcon
+      new Rcon(server, (ctx) ->
+        ctx.exec("sm_say #{msg.match[2]}", (res) ->
+          ctx.close()
+          return msg.reply "#{msg.random(affirmative)} your message was delivered..."
+        )
       )
-    )
+
+    return msg.reply "#{msg.random(mistake)} that's not a valid server..."
 
   robot.respond /rcon (list|the list|roster|players) on (.*)/i, (msg) ->
     previous = robot.brain.get 'previous'
-    server = servers[msg.match[2].toLowerCase()]
 
-    return unless server?.rcon and previous?
-
-    new Rcon(server, (ctx) ->
-      ctx.exec("sm_say [ #tfbot ] #{Object.keys(previous.participants).join(' ')}", (res) ->
-        ctx.close()
-        return msg.reply "#{msg.random(affirmative)} player roster was delivered..."
+    if previous?.rcon
+      new Rcon(server, (ctx) ->
+        ctx.exec("sm_say [ #tfbot ] #{Object.keys(previous.participants).join(' ')}", (res) ->
+          ctx.close()
+          return msg.reply "#{msg.random(affirmative)} player roster was delivered..."
+        )
       )
-    )
+
+    return msg.reply "#{msg.random(mistake)} there's no previous game data. creepy..."
 
   robot.respond /rcon (change map|changelevel|map) on (.*) to (.*)/i, (msg) ->
 
@@ -202,8 +204,8 @@ module.exports = (robot) ->
           return msg.reply "#{msg.random(affirmative)} changing map as we speak..."
         )
       )
-    else
-      return msg.reply "um, i don't know that map. awkwaaaard..."
+
+    return msg.reply "#{msg.random(mistake)} i don't know that map..."
 
   robot.respond /(sg|new) (.*)/i, (msg) ->
 
