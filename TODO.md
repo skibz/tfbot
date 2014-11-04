@@ -1,4 +1,6 @@
+- [] add the rules to hubot-rules
 - [] add roles for rcon, pickup handling and super admins
+- [] druid, kenny, joe and axtremes are mweb admins. assign pickup handling and rcon roles.
 - [] add auth handling in each protected `robot.respond`
 - [] finish porting existing tfbot code
 - [] add http handlers for `antino.co.za` service calls
