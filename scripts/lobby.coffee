@@ -147,7 +147,7 @@ module.exports = (robot) ->
         robot.brain.set 'previous', lobby
         msg.send "be a darling and click the link: steam://connect/#{server.host}:#{server.port}/#{server.password}"
         msg.send "no guarantee can be made that your place will still be available if you're late."
-        return msg.send "also, if you're late often, a suitable punishment will be given."
+        return msg.send "also, if you're late often, a suitable punishment will be awarded."
       else
         lobby.finalising = false
         robot.brain.set 'lobby', lobby
