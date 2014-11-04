@@ -7,14 +7,14 @@ module.exports = (robot) ->
       port: 27095
       tv: ''
       password: 'games'
-      rcon: 'teamfortress'
+
     is2:
       name: 'is2'
       host: '196.38.180.26'
       port: 27115
       tv: ''
       password: 'games'
-      rcon: 'teamfortress2'
+
     mweb1:
       name: 'mweb1'
       host: '152.111.192.250'
