@@ -5,4 +5,4 @@
 - [] unit testing with io-digital/actuator
 - [] .travis.yml
 - [] coveralls.io
-- [] ubuntu service `.conf` script
+- [x] ubuntu service `.conf` script
