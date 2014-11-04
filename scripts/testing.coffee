@@ -16,14 +16,21 @@ module.exports = (robot) ->
     'you da main maing, maing!'
     'yes, yes, very well.'
     'work, work.'
+    'very well, friend.'
   ]
+
   negative = [
-    'aww'
-    'hmm'
+    'meh'
+    'awww'
+    'hmmm'
     'sigh'
+    'gosh'
+    'bleh'
   ]
+
   mistake = [
     'silly-billy'
+    'my, oh my, you are a funny one'
     'oops'
     'i\'m pregnant, also'
     'well, this is awkward'
@@ -31,7 +38,6 @@ module.exports = (robot) ->
     'you too slow, maing'
     'uh-oh'
     'um, this is embarrassing'
-    'me not that kind of orc, also'
   ]
 
   servers =
@@ -232,7 +238,7 @@ module.exports = (robot) ->
 
   robot.respond /(cg|kill)/i, (msg) ->
 
-    lobby = msg.message.user.id
+    lobby = robot.brain.get 'lobby'
     return msg.reply "#{msg.random(mistake)}, there\'s no pickup filling..." unless lobby?
 
     user = msg.message.user.id # check their auth if target isn't them
@@ -320,7 +326,7 @@ module.exports = (robot) ->
 
     return msg.reply "#{msg.random(mistake)}, #{msg.match[1]} isn't a valid server..."
 
-  robot.hear /^status$/i, (msg) ->
+  robot.respond /(status|games)/i, (msg) ->
     lobby = robot.brain.get('lobby')
 
     return msg.reply "#{msg.random(mistake)}, there\'s no pickup filling..." unless lobby?
