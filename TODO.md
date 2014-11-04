@@ -1,0 +1,8 @@
+- [] add roles for rcon, pickup handling and super admins
+- [] add auth handling in each protected `robot.respond`
+- [] finish porting existing tfbot code
+- [] add http handlers for `antino.co.za` service calls
+- [] unit testing with io-digital/actuator
+- [] .travis.yml
+- [] coveralls.io
+- [] ubuntu service `.conf` script

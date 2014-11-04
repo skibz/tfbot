@@ -96,7 +96,7 @@ module.exports = (robot) ->
 
     return msg.reply 'a pickup is already filling...' if lobby?
 
-    user = msg.message.user.id # check their auth if target isn't them
+    user = msg.message.user.id
 
     filtered = maps.filter((val, idx, arr) -> val.indexOf msg.match[2] isnt -1) if map.length > 3
     map = msg.random maps
