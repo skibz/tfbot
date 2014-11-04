@@ -17,28 +17,60 @@ module.exports = (robot) ->
     'yes, yes, very well.'
     'work, work.'
     'very well, friend.'
+    'I am sworn to carry your burdans.'
+    'I\'m invincible!'
+    'Well, I am king.'
+    'Yes, milord.'
+    'You can be my wingman any time.'
+    'Whose butt did you kiss to get in here anyway?'
+    'Affirmative, Dave. I read you.'
+    'You had me at \'hello.\''
+    'Inform the men.'
+    'Good news, everyone!'
+    'tfbot is credit to team!'
   ]
 
   negative = [
-    'meh'
-    'awww'
-    'hmmm'
-    'sigh'
-    'gosh'
-    'bleh'
+    'meh.'
+    'awww.'
+    'hmmm.'
+    'sigh.'
+    'gosh.'
+    'bleh.'
+    'Help! Help! I\'m being repressed!'
+    'No, it\'s too perilous.'
+    'That\'s enough music for now, lads.'
+    'Negative, Ghost Rider, the pattern is full.'
+    'I\'m sorry, Dave. I\'m afraid I can\'t do that.'
+    'What we\'ve got here is failure to communicate.'
+    'You\'re gonna need a bigger boat.'
+    'Bite my shiny metal ass.'
+    'Use more gun'
+    'BONK!'
   ]
 
   mistake = [
-    'awkwaaard, but'
-    'silly-billy'
-    'my, oh my, you are a funny one'
-    'oops'
-    'i\'m pregnant, also'
-    'well, this is awkward'
-    'oh dear'
-    'you too slow, maing'
-    'uh-oh'
-    'um, this is embarrassing'
+    'awkwaaard, but,'
+    'silly-billy!'
+    'my, oh my, you are a funny one.'
+    'oops?'
+    'i\'m pregnant, also,'
+    'well, this is awkward.'
+    'oh dear.'
+    'you too slow, maing.'
+    'uh-oh!'
+    'um, this is embarrassing...'
+    'Angry mob: \'Ooooh!\''
+    'Ekki-ekki-ekki-ekki-PTANG. Zoom-Boing, z\'nourrwringmm.'
+    'How does it... um... how does it work?'
+    '\'Ere, he says he\'s not dead.'
+    'D\'oh!'
+    'Just what do you think you\'re doing, Dave?'
+    'Toto, I\'ve got a feeling we\'re not in Kansas anymore.'
+    'Mama always said life was like a box of chocolates.'
+    'I just work here.'
+    'A sexy mistake.'
+    'I don\'t get it.'
   ]
 
   servers =
@@ -144,15 +176,15 @@ module.exports = (robot) ->
           ctx.close()
         )
 
-        robot.brain.set 'lobby', null
         robot.brain.set 'previous', lobby
+        robot.brain.set 'lobby', null
         msg.send "be a darling and click the link: steam://connect/#{server.host}:#{server.port}/#{server.password}"
         msg.send "no guarantee can be made that your place will still be available if you're late."
         return msg.send "also, if you're late often, a suitable punishment will be awarded."
 
       lobby.finalising = false
       robot.brain.set 'lobby', lobby
-      return msg.send "darn, it looks like we didn't find enough players in time. but never fear! tfbot is here to comfort you while you cry yourself to sleep."
+      return msg.send "#{msg.random(mistake)}, it looks like we didn't find enough players in time. but never fear! tfbot is here to comfort you while you cry yourself to sleep."
 
   robot.leave (msg) ->
     lobby = robot.brain.get 'lobby'
@@ -211,7 +243,7 @@ module.exports = (robot) ->
 
     lobby = robot.brain.get('lobby')
 
-    return msg.reply "#{msg.random(mistake)}, it seems a pickup is already filling..." if lobby?
+    return msg.reply "#{msg.random(mistake)}, it seems a pickup is already created..." if lobby?
 
     msg.send "#{msg.random(affirmative)} starting a new pickup..."
     user = msg.message.user.id
@@ -273,7 +305,7 @@ module.exports = (robot) ->
   robot.respond /rem (me|.*)/i, (msg) ->
     lobby = robot.brain.get('lobby')
 
-    return msg.reply "#{msg.random(mistake)}, there\'s no pickup filling..." if not lobby?
+    return msg.reply "#{msg.random(mistake)}, there\'s currently no pickup..." if not lobby?
 
     user = msg.message.user.id # check their auth if target isn't them
     target = if msg.match[1] is 'me' then user else msg.match[1]
@@ -290,7 +322,7 @@ module.exports = (robot) ->
   robot.respond /map (.*)/i, (msg) ->
     lobby = robot.brain.get('lobby')
 
-    return msg.reply "#{msg.random(mistake)}, there\'s no pickup filling..." unless lobby?
+    return msg.reply "#{msg.random(mistake)}, there\'s currently no pickup..." unless lobby?
 
     validMap = msg.match[2] in maps
     filtered = filterMaps(msg.match[2], maps)
@@ -309,7 +341,7 @@ module.exports = (robot) ->
   robot.respond /server (.*)/i, (msg) ->
     lobby = robot.brain.get('lobby')
 
-    return msg.reply "#{msg.random(mistake)}, there\'s no pickup filling..." unless lobby?
+    return msg.reply "#{msg.random(mistake)}, there\'s currently no pickup..." unless lobby?
 
     user = msg.message.user.id # check their auth
     if msg.match[1] in serverList
@@ -322,7 +354,7 @@ module.exports = (robot) ->
   robot.respond /(status|games)/i, (msg) ->
     lobby = robot.brain.get('lobby')
 
-    return msg.reply "#{msg.random(mistake)}, there\'s no pickup filling..." unless lobby?
+    return msg.reply "#{msg.random(mistake)}, there\'s currently no pickup..." unless lobby?
 
     players = Object.keys(lobby.participants)
     return msg.send "|| #{lobby.server} | #{lobby.map} | #{players.length}/12 | [ #{players.join(', ')} ] ||"
