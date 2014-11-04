@@ -1,4 +1,35 @@
+class Rcon
+
+  constructor: (server, fn) ->
+    @server = server
+    ctx = new (require 'simple-rcon')(@server.host, @server.port, @server.rcon)
+    ctx.on('error', (err) -> console.error 'rcon error', err)
+        .on('authenticated', -> return fn(ctx))
+
 module.exports = (robot) ->
+
+  affirmative = [
+    'as you wish, master.'
+    'i exist to serve.'
+    'yes ma\'am!'
+    'man, oh man.'
+    'you da main maing, maing!'
+  ]
+  negative = [
+    'aww'
+    'hmm'
+    ''
+  ]
+  mistake = [
+    'silly-billy'
+    'oops'
+    'i\'m pregnant'
+    'well, this is awkward'
+    'oh dear'
+    'you too slow, maing'
+    'uh-oh'
+    'um, this is embarrassing'
+  ]
 
   servers =
     is1:
@@ -7,49 +38,49 @@ module.exports = (robot) ->
       port: 27095
       tv: ''
       password: 'games'
-
+      rcon: process.env.RCON_IS1 ? ''
     is2:
       name: 'is2'
       host: '196.38.180.26'
       port: 27115
       tv: ''
       password: 'games'
-
+      rcon: process.env.RCON_IS2 ? ''
     mweb1:
       name: 'mweb1'
       host: '152.111.192.250'
       port: 27015
       tv: '152.111.192.250:27030'
       password: 'games'
-      rcon: ''
+      rcon: process.env.RCON_MWEB1 ? ''
     mweb2:
       name: 'mweb2'
       host: '197.80.200.27'
       port: 27015
       tv: '197.80.200.27:27030'
       password: 'games'
-      rcon: ''
+      rcon: process.env.RCON_MWEB2 ? ''
     mweb3:
       name: 'mweb3'
       host: '152.111.192.253'
       port: 27017
       tv: '152.111.192.253:27030'
       password: 'games'
-      rcon: ''
+      rcon: process.env.RCON_MWEB3 ? ''
     mweb4:
       name: 'mweb4'
       host: '197.80.200.34'
       port: 27015
       tv: '197.80.200.34:27030'
       password: 'games'
-      rcon: ''
+      rcon: process.env.RCON_MWEB4 ? ''
     mweb5:
       name: 'mweb5',
       host: '197.80.200.21'
       port: 27015
       tv: '197.80.200.21:27030'
       password: 'games'
-      rcon: ''
+      rcon: process.env.RCON_MWEB5 ? ''
 
   serverList = [
     servers.is1.name
@@ -80,6 +111,10 @@ module.exports = (robot) ->
     'koth_pro_viaduct_rc4'
   ]
 
+  filterMaps = (desired, mapList) ->
+
+    mapList.filter (map) -> map.indexOf(desired) isnt -1
+
   newLobby = (map, principal, server) ->
     {
       createdAt: (new Date()).toJSON()
@@ -90,34 +125,119 @@ module.exports = (robot) ->
       finalising: false
     }
 
+  finalising = (robot, msg) ->
+    lobby = robot.brain.get 'lobby'
+    server = servers[lobby.server]
+
+    if lobby?
+      players = Object.keys lobby.participants
+
+      if players.length is 12
+
+        new Rcon(server, (ctx) ->
+          ctx.exec('sm_say [ #tfbot ] Pickup is full!')
+          ctx.exec("sm_say [ #tfbot ] Map: #{lobby.map}")
+          ctx.exec("sm_say [ #tfbot ] Players: #{players.join(' ')}")
+          ctx.exec("sm_say [ #tfbot ] irc.shadowfire.org / antino.co.za/tfbot")
+          ctx.close()
+        )
+
+        robot.brain.set 'lobby', null
+        robot.brain.set 'previous', lobby
+        msg.send "be a darling and click the link: steam://connect/#{server.host}:#{server.port}/#{server.password}"
+        msg.send "no guarantee can be made that your place will still be available if you're late."
+        return msg.send "also, if you're late often, a suitable punishment will be given."
+      else
+        lobby.finalising = false
+        robot.brain.set 'lobby', lobby
+        return msg.send "darn, it looks like we didn't find enough players in time. but never fear! tfbot is here to comfort you while you cry yourself to sleep."
+
+  robot.leave (msg) ->
+    lobby = robot.brain.get 'lobby'
+    return unless lobby?
+
+    user = msg.message.user.id
+    players = Object.keys(lobby.participants)
+
+    if lobby? and user in players
+      delete lobby.participants[user]
+      robot.brain.set 'lobby', lobby
+      return msg.send "|| #{lobby.server} | #{lobby.map} | #{players.length}/12 | [ #{players.join(', ')} ] ||"
+
+  robot.respond /rcon (say|message|msg) (.*) on (.*)/i, (msg) ->
+    server = servers[msg.match[3].toLowerCase()]
+
+    return unless server?.rcon
+
+    new Rcon(server, (ctx) ->
+      ctx.exec("sm_say #{msg.match[2]}", (res) ->
+        ctx.close()
+        return msg.reply "yeah, so, i delivered your damned message. now what?"
+      )
+    )
+
+  robot.respond /rcon (list|the list|roster|players) on (.*)/i, (msg) ->
+    previous = robot.brain.get 'previous'
+    server = servers[msg.match[2].toLowerCase()]
+
+    return unless server?.rcon and previous?
+
+    new Rcon(server, (ctx) ->
+      ctx.exec("sm_say [ #tfbot ] #{Object.keys(previous.participants).join(' ')}", (res) ->
+        ctx.close()
+        return msg.reply "kind of ironic that you're doing this from irc, isn't it? But, very well..."
+      )
+    )
+
+  robot.respond /rcon (change map|changelevel|map) on (.*) to (.*)/i, (msg) ->
+
+    server = servers[msg.match[2].toLowerCase()]
+    map = msg.match[3].toLowerCase()
+
+    if server?.rcon and (map in maps or filterMaps(map, maps).length is 1)
+      new Rcon(server, (ctx) ->
+        ctx.exec("changelevel #{map}", (res) ->
+          ctx.close()
+          return msg.reply "okay, okay, i'm changing the map already. calm yourself."
+        )
+      )
+    else
+      return msg.reply "um, i don't know that map. awkwaaaard..."
+
   robot.respond /(sg|new) (.*)/i, (msg) ->
 
     lobby = robot.brain.get('lobby')
 
-    return msg.reply 'a pickup is already filling...' if lobby?
+    return msg.reply 'um, this is embarrassing. it seems a pickup is already filling...' if lobby?
 
+    msg.send 'man, oh man, starting a new pickup...'
     user = msg.message.user.id
 
-    filtered = maps.filter((val, idx, arr) -> val.indexOf msg.match[2] isnt -1) if map.length > 3
-    map = msg.random maps
-    map = filtered[0] if filtered.length is 1
+    validMap = msg.match[2] in maps
+    filtered = filterMaps(msg.match[2], maps)
 
-    created = newLobby(map, user, msg.random(serverList[0..2]))
+    if validMap
+      map = msg.match[2]
+    else if filtered.length is 1
+      map = filtered[0]
+    else
+      map = msg.random maps
+
+    created = newLobby(map, user, msg.random(serverList[0..3]))
     robot.brain.set('lobby', created)
     return msg.send "|| #{created.map} | #{Object.keys(created.participants).length}/12 | [  ] ||"
-
-
 
   robot.respond /(cg|kill)/i, (msg) ->
 
     lobby = msg.message.user.id
-    return msg.reply 'there\'s no pickup filling...' unless lobby?
+    return msg.reply 'hmm, there\'s no pickup filling...' unless lobby?
 
     user = msg.message.user.id # check their auth if target isn't them
 
     # cancel the game
     robot.brain.set 'lobby', null
 
+    return msg.send 'aww, pickup cancelled...'
 
   robot.respond /add (me|.*)/i, (msg) ->
     lobby = robot.brain.get('lobby')
@@ -125,29 +245,32 @@ module.exports = (robot) ->
     target = if msg.match[1] is 'me' then user else msg.match[1].trim()
 
     if not lobby?
-      msg.send 'Creating new pickup...'
+
       lobby = newLobby(msg.random(maps), user, msg.random(serverList[0..2]))
       robot.brain.set 'lobby', lobby
 
     players = Object.keys(lobby.participants)
 
-    if players.length < 13
+    if players.length < 12
 
       if target not in players
 
         lobby.participants[target] = target
         robot.brain.set 'lobby', lobby
         players = Object.keys(lobby.participants)
-        return msg.send "|| #{lobby.server} | #{lobby.map} | #{players.length}/12 | [ #{players.join(', ')} ] ||"
+        msg.send "|| #{lobby.server} | #{lobby.map} | #{players.length}/12 | [ #{players.join(', ')} ] ||"
+        return unless players.length is 12 and not lobby.finalising
+
+        return setTimeout(finalising, 60000, robot, msg)
 
       return msg.reply "#{if msg.match[1] is 'me' then 'you are' else target + ' is'} already added..."
 
-    return msg.reply 'the pickup is full...'
+    return msg.reply 'you too slow, maing. the pickup is already full...'
 
   robot.respond /rem (me|.*)/i, (msg) ->
     lobby = robot.brain.get('lobby')
 
-    return msg.reply 'there\'s no pickup filling...' if not lobby?
+    return msg.reply 'silly-billy, there\'s no pickup filling...' if not lobby?
 
     user = msg.message.user.id # check their auth if target isn't them
     target = if msg.match[1] is 'me' then user else msg.match[1]
@@ -164,47 +287,40 @@ module.exports = (robot) ->
   robot.respond /map (.*)/i, (msg) ->
     lobby = robot.brain.get('lobby')
 
-    return msg.reply 'there\'s no pickup filling...' unless lobby?
+    return msg.reply 'silly-billy, there\'s no pickup filling...' unless lobby?
 
-    map = msg.match[1]
+    validMap = msg.match[2] in maps
+    filtered = filterMaps(msg.match[2], maps)
 
-    if map in maps
+    if validMap
+      map = msg.match[2]
+    else if filtered.length is 1
+      map = filtered[0]
+    else
+      map = msg.random maps
 
-      lobby.map = map
-      robot.brain.set('lobby', lobby)
-      return msg.reply "changed map to #{map}..."
-
-    else if map.length > 3
-
-      filtered = maps.filter (m) -> m.indexOf map isnt -1
-
-      if filtered.length is 1
-        lobby.map = filtered[0]
-        robot.brain.set('lobby', lobby)
-        return msg.reply "changed map to #{filtered[0]}..."
-
-      return msg.reply filtered
+    lobby.map = map
+    robot.brain.set('lobby', lobby)
+    return msg.reply "yes ma\'am! changing map to #{map}..."
+    # very well, friend.
 
   robot.respond /server (.*)/i, (msg) ->
     lobby = robot.brain.get('lobby')
 
-    return msg.reply 'there\'s no pickup filling...' unless lobby?
+    return msg.reply 'silly-billy, there\'s no pickup filling...' unless lobby?
 
     user = msg.message.user.id # check their auth
     if msg.match[1] in serverList
       lobby.server = msg.match[1]
       robot.brain.set 'lobby', lobby
-      return msg.reply "changed server to #{msg.match[1]}..."
+      return msg.reply "as you wish, master. changing the server to #{msg.match[1]}..."
 
-    return msg.reply "#{msg.match[1]} isn't a valid server..."
+    return msg.reply "oops, #{msg.match[1]} isn't a valid server..."
 
-  robot.respond /^status$/i, (msg) ->
+  robot.hear /^status$/i, (msg) ->
     lobby = robot.brain.get('lobby')
 
-    return msg.reply 'there\'s no pickup filling...' unless lobby?
+    return msg.reply 'silly-billy, there\'s no pickup filling...' unless lobby?
 
     players = Object.keys(lobby.participants)
     return msg.send "|| #{lobby.server} | #{lobby.map} | #{players.length}/12 | [ #{players.join(', ')} ] ||"
-
-
-
