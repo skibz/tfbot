@@ -91,15 +91,7 @@ module.exports = (robot) ->
       password: 'games'
       rcon: process.env.RCON_MWEB5 ? ''
 
-  serverList = [
-    servers.is1.name
-    servers.is2.name
-    servers.mweb1.name
-    servers.mweb2.name
-    servers.mweb3.name
-    servers.mweb4.name
-    servers.mweb5.name
-  ]
+  serverList = Object.keys servers
 
   maps = [
     'cp_gravelpit',
@@ -311,7 +303,6 @@ module.exports = (robot) ->
     lobby.map = map
     robot.brain.set('lobby', lobby)
     return msg.reply "#{msg.random(affirmative)} changing map to #{map}..."
-    # very well, friend.
 
   robot.respond /server (.*)/i, (msg) ->
     lobby = robot.brain.get('lobby')

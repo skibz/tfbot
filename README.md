@@ -11,7 +11,7 @@ You can test your hubot by running the following.
 
 You can start tfbot locally by running:
 
-    $ bin/hubot --name tfbot --alias ! --config-check
+    $ bin/hubot --name tfbot --alias !
 
 You'll see some start up output about where your scripts come from and a
 prompt:
