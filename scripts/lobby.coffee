@@ -181,8 +181,9 @@ module.exports = (robot) ->
 
   robot.respond /rcon (list|the list|roster|players) on (.*)/i, (msg) ->
     previous = robot.brain.get 'previous'
+    server = servers[previous.server]
 
-    if previous?.rcon
+    if previous? and server?.rcon
       new Rcon(server, (ctx) ->
         ctx.exec("sm_say [ #tfbot ] #{Object.keys(previous.participants).join(' ')}", (res) ->
           ctx.close()
