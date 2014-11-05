@@ -144,6 +144,23 @@ module.exports = (robot) ->
           ctx.close()
         )
 
+        today = robot.brain.get 'today'
+
+        today = { players: {}, maps: {} } unless today?
+
+        for player in players
+          if today.players.hasOwnProperty player
+            today.players[player]++
+          else
+            today.players[player] = 1
+
+        if today.maps.hasOwnProperty lobby.map
+          today.maps[lobby.map]++
+        else
+          today.maps[lobby.map] = 1
+
+        robot.brain.set 'today', today
+
         robot.brain.set 'lobby', null
         robot.brain.set 'previous', lobby
         msg.send "be a darling and click the link: steam://connect/#{server.host}:#{server.port}/#{server.password}"
@@ -372,3 +389,35 @@ module.exports = (robot) ->
 
     players = Object.keys(lobby.participants)
     return msg.send "|| #{lobby.server} | #{lobby.map} | #{players.length}/12 | [ #{players.join(', ')} ] ||"
+
+  robot.respond /(recent|recent game|previous|last game|lastgame|previous game)/i, (msg) ->
+    previous = robot.brain.get 'previous'
+    return msg.send "#{msg.random(negative)}, no previous match data..." unless previous?
+    return msg.send "|| #{previous.principal} | #{previous.server} | #{previous.map} | [ #{Object.keys(previous.participants).join(', ')} ] | #{new Date(previous.createdAt).toString()} ||"
+
+  robot.respond /top (maps|players)/i, (msg) ->
+    today = robot.brain.get 'today'
+
+    return msg.send "#{msg.random(negative)}, i haven't captured any daily data yet..." unless today?
+
+    response = '||'
+
+    if msg.match[1] is 'maps'
+
+      if not Object.keys(today.maps).length
+        return msg.send "#{msg.random(negative)}, i haven't captured any daily map data yet..."
+
+      for map, played of today.maps
+        response += " #{map}: #{played} |"
+
+      return msg.send "#{response}|"
+
+    else
+
+      if not Object.keys(today.players).length
+        return msg.send "#{msg.random(negative)}, i haven't captured any daily player data yet..."
+
+      for player, played of today.players
+        response += " #{player}: #{played} |"
+
+      return msg.send "#{response}|"
