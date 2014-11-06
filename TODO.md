@@ -14,3 +14,4 @@
 - [ ] encapsulate pickups script so it can be reloaded https://github.com/github/hubot/blob/master/docs/scripting.md#creating-a-script-package
 - [ ] add irc emote responses https://github.com/github/hubot/blob/master/docs/scripting.md#send--reply
 - [ ] consider using the topic changer https://github.com/github/hubot/blob/master/docs/scripting.md#topic
+- [ ] remove adverbs from bot responses, ie 'currently'
