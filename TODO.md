@@ -3,15 +3,36 @@
   + [ ] Make sure to setup some swap in your system (we suggest as much as swap as memory).
 - [ ] add the rules to hubot-rules
 - [x] add roles for rcon, pickup handling and super admins
-- [ ] finish porting existing tfbot code
-  + [ ] add http calls for steam group announcements https://github.com/github/hubot/blob/master/docs/scripting.md#making-http-calls
-  + [x] check a users auth status if they try do something admin'ey
-- [ ] unit testing with io-digital/actuator
-- [ ] .travis.yml
-- [ ] coveralls.io
 - [x] ubuntu service `.conf` script
-- [ ] document entire pickups script https://github.com/github/hubot/blob/master/docs/scripting.md#documenting-scripts
-- [ ] encapsulate pickups script so it can be reloaded https://github.com/github/hubot/blob/master/docs/scripting.md#creating-a-script-package
-- [ ] add irc emote responses https://github.com/github/hubot/blob/master/docs/scripting.md#send--reply
-- [ ] consider using the topic changer https://github.com/github/hubot/blob/master/docs/scripting.md#topic
-- [ ] remove adverbs from bot responses, ie 'currently'
+- [ ] health check - report redis status and node status
+- [ ] scripts:
+    + [ ] look of disapproval
+    + [ ] insult
+    + [ ] mindkiller
+    + [ ] minime
+    + [ ] mitch-hedburg
+    + [ ] nice
+    + [ ] nickgen
+    + [ ] pinboard
+    + [ ] pizza
+    + [ ] points
+    + [ ] reddit-random-top
+    + [ ] robot-memes
+    + [ ] sms
+    + [ ] steam
+    + [ ] sweetdude
+    + [ ] web
+    + [ ] webcam
+    + [ ] whoisout
+    + [ ] wolfram
+    + [ ] advice
+    + [ ] bees
+    + [ ] cheer
+    + [ ] conversation
+    + [ ] decide
+    + [ ] f-ing-weather
+    + [ ] flip
+    + [ ] iced-coffee-weather
+    + [ ] javascript-sandbox
+    + [ ] lastfm_np
+    + [ ] remember
