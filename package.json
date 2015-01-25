@@ -4,7 +4,7 @@
   "private": true,
   "author": "Ant Cosentino <antony@mycosentino.com>",
   "scripts": {
-    "post-install": "sh install.sh"
+    "postinstall": "sh install.sh"
   },
   "description": "An IRC bot for the South African TF2 community.",
   "dependencies": {

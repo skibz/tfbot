@@ -22,17 +22,13 @@ class IrcBot extends Adapter
     unless target
       return logger.error "ERROR: Not sure who to send to. envelope=", envelope
 
-    for str in strings
-      @bot.say target, str
+    @bot.say target, str for str in strings
 
   sendPrivate: (envelope, strings...) ->
     # Remove the room from the envelope and send as private message to user
 
-    if envelope.room
-      delete envelope.room
-
-    if envelope.user?.room
-      delete envelope.user.room
+    delete envelope.room if envelope.room
+    delete envelope.user.room if envelope.user?.room
 
     @send envelope, strings...
 
@@ -50,8 +46,7 @@ class IrcBot extends Adapter
     unless target
       return logger.error "ERROR: Not sure who to send to. envelope=", envelope
 
-    for str in strings
-      @bot.action target, str
+    @bot.action target, str for str in strings
 
   notice: (envelope, strings...) ->
     target = @_getTargetFromEnvelope envelope
@@ -69,9 +64,7 @@ class IrcBot extends Adapter
           else
             flattened.push line
 
-    for str in flattened
-      if not str?
-        continue
+    continue if not str? for str in flattened
 
       @bot.notice target, str
 
