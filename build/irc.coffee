@@ -64,7 +64,9 @@ class IrcBot extends Adapter
           else
             flattened.push line
 
-    continue if not str? for str in flattened
+          for str in flattened
+            if not str?
+              continue
 
       @bot.notice target, str
 
