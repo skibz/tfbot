@@ -23,7 +23,7 @@
     "hubot-tell": "^1.2.3",
     "hubot-youtube": "^0.1.2",
     "cleverbot-node": "*",
-    "tflobby": "^0.1.6"
+    "tflobby": "latest"
   },
   "engines": {
     "node": "0.10.x"
