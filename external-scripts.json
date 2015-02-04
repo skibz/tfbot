@@ -1,13 +1,8 @@
 [
   "hubot-redis-brain",
   "tflobby",
-  "hubot-diagnostics",
-  "hubot-help",
-  "hubot-google-images",
   "hubot-pugme",
   "hubot-rules",
-  "hubot-shipit",
-  "hubot-youtube",
   "hubot-auth",
   "hubot-tell"
 ]
